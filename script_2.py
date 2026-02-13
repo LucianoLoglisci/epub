@@ -29,8 +29,10 @@ except TypeError:
 
 TRANSLATION_CACHE = {}  # (text, lang) -> translated
 
+
 async def _maybe_await(x):
     return await x if inspect.isawaitable(x) else x
+
 
 async def translate_text(text, target_lang="it", retries=4, base_delay=0.8):
     """Traduce una stringa (con cache + retry)."""
@@ -61,6 +63,10 @@ async def translate_text(text, target_lang="it", retries=4, base_delay=0.8):
 
 # =========================================================
 # EPUB: export risorse + crea full.html (NO traduzione)
+#   FIX:
+#   - prende CSS anche con namespace (local-name())
+#   - prende BODY anche con namespace (local-name())
+#   - sistema anche xlink:href / {namespace}href (SVG images)
 # =========================================================
 def export_epub_folder(book, out_dir="epub_export"):
     os.makedirs(out_dir, exist_ok=True)
@@ -72,11 +78,13 @@ def export_epub_folder(book, out_dir="epub_export"):
             f.write(item.get_content())
     return out_dir
 
+
 def is_relative(url):
     if not url:
         return False
     u = url.strip().lower()
     return not (u.startswith(("http://", "https://", "mailto:", "tel:", "data:", "#", "/")))
+
 
 def make_full_html(book, out_dir="epub_export", out_name="full.html"):
     os.makedirs(out_dir, exist_ok=True)
@@ -87,6 +95,28 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
     inline_styles = []
     body_parts = []
 
+    def fix_all_urls(doc, base_dir):
+        # sistema src/href e anche xlink:href dentro svg
+        for el in doc.iter():
+            # src
+            if "src" in el.attrib:
+                v = el.attrib.get("src")
+                if v and is_relative(v):
+                    el.attrib["src"] = posixpath.normpath(posixpath.join(base_dir, v))
+
+            # href
+            if "href" in el.attrib:
+                v = el.attrib.get("href")
+                if v and is_relative(v):
+                    el.attrib["href"] = posixpath.normpath(posixpath.join(base_dir, v))
+
+            # xlink:href o {namespace}href
+            for k in list(el.attrib.keys()):
+                if k == "xlink:href" or k.endswith("}href"):
+                    v = el.attrib.get(k)
+                    if v and is_relative(v):
+                        el.attrib[k] = posixpath.normpath(posixpath.join(base_dir, v))
+
     for idref in spine_ids:
         item = book.get_item_with_id(idref)
         if not item or item.get_type() != ebooklib.ITEM_DOCUMENT:
@@ -94,36 +124,32 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
 
         chapter_path = item.get_name()
         base_dir = posixpath.dirname(chapter_path)
+
         doc = html.fromstring(item.get_content())
 
-        # CSS esterni
-        for link in doc.xpath('//link[@rel="stylesheet"]'):
+        # CSS esterni (robusto con namespace + rel case-insensitive)
+        for link in doc.xpath(
+            "//*[local-name()='link' and translate(@rel,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='stylesheet']"
+        ):
             href = link.get("href")
             if href and is_relative(href):
                 href = posixpath.normpath(posixpath.join(base_dir, href))
             if href:
                 css_links.append(href)
 
-        # CSS inline
-        for style in doc.xpath("//style"):
+        # CSS inline (robusto con namespace)
+        for style in doc.xpath("//*[local-name()='style']"):
             css = (style.text or "").strip()
             if css:
                 inline_styles.append(css)
 
-        # Fix src
-        for el in doc.xpath('//*[@src]'):
-            src = el.get("src")
-            if src and is_relative(src):
-                el.set("src", posixpath.normpath(posixpath.join(base_dir, src)))
+        # Fix risorse (src/href/xlink:href)
+        fix_all_urls(doc, base_dir)
 
-        # Fix href
-        for el in doc.xpath('//*[@href]'):
-            href = el.get("href")
-            if href and is_relative(href):
-                el.set("href", posixpath.normpath(posixpath.join(base_dir, href)))
-
-        body = doc.find(".//body")
-        if body is not None:
+        # body robusto con namespace
+        bodies = doc.xpath("//*[local-name()='body']")
+        if bodies:
+            body = bodies[0]
             inner = "\n".join(html.tostring(child, encoding="unicode") for child in body)
             body_parts.append(inner)
 
@@ -162,15 +188,80 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
 
 
 # =========================================================
+# MOSSE DI SCACCHI: riconoscimento + mascheramento
+# =========================================================
+CHESS_MOVE_TOKEN = re.compile(
+    r"(?:\bO-O-O\b|\bO-O\b|"
+    r"\b\d+\.(?:\.\.)?\s*(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?|[a-h]x?[a-h][1-8](?:=[QRBN])?[+#]?)|"
+    r"\b[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?\b|"
+    r"\b[a-h]x?[a-h][1-8](?:=[QRBN])?[+#]?\b|"
+    r"\b(1-0|0-1|1/2-1/2|\*)\b)"
+)
+
+MOVE_NUM = re.compile(r"^\d+\.(?:\.\.)?$|^\d+\.\.\.$")
+RESULT_TOK = re.compile(r"^(1-0|0-1|1/2-1/2|\*)$")
+
+
+def looks_like_chess_line(text):
+    """True se la riga è 'quasi tutta' fatta di mosse/annotazioni."""
+    t = (text or "").strip()
+    if not t:
+        return False
+    toks = re.split(r"\s+", t)
+    if len(toks) < 3:
+        return False
+
+    chess = 0
+    for tok in toks:
+        x = tok.strip().strip(",;")
+        if MOVE_NUM.match(x) or RESULT_TOK.match(x):
+            chess += 1
+            continue
+        if CHESS_MOVE_TOKEN.fullmatch(x):
+            chess += 1
+
+    return (chess / len(toks)) >= 0.60
+
+
+def mask_chess_moves_in_text(text):
+    """
+    Sostituisce le mosse con placeholder, così la traduzione non le tocca.
+    Ritorna: (masked_text, mapping)
+    """
+    mapping = {}
+    i = 0
+
+    def repl(m):
+        nonlocal i
+        key = f"⟬MV{i}⟭"
+        mapping[key] = m.group(0)
+        i += 1
+        return key
+
+    masked = CHESS_MOVE_TOKEN.sub(repl, text)
+    return masked, mapping
+
+
+def unmask_chess_moves(text, mapping):
+    out = text
+    for k, v in mapping.items():
+        out = re.sub(rf"\s*{re.escape(k)}\s*", v, out)
+    return out
+
+
+# =========================================================
 # TRADUZIONE VELOCE (meno richieste) + TAG INTACTI
 #  - 1 richiesta per "blocco" (p, li, h1..h6, td, ecc.)
 #  - dentro il blocco traduce tanti pezzetti insieme con un delimitatore
+#  - SALTA o MASCHERA le mosse di scacchi
 # =========================================================
 SKIP_TAGS = {"script", "style", "head", "title", "meta", "link", "code", "pre", "kbd", "samp"}
 LETTER_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
 
+
 def has_letters(s):
     return bool(s and LETTER_RE.search(s))
+
 
 def split_ws(s):
     s = s or ""
@@ -178,6 +269,7 @@ def split_ws(s):
     suf = re.search(r"\s*$", s).group(0)
     core = s.strip()
     return pre, core, suf
+
 
 def collect_text_slots_in_block(block_el):
     """
@@ -204,9 +296,12 @@ def collect_text_slots_in_block(block_el):
     rec(block_el)
     return slots
 
+
 async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars, stop_event):
     """
     Traduce SOLO il testo del blocco, senza rimuovere tag/attributi.
+    - se un pezzo è "solo mosse" -> lo salta (non traduce)
+    - se contiene mosse dentro prosa -> le maschera e poi ripristina
     """
     if stop_event.is_set():
         return "CANCEL"
@@ -217,6 +312,7 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
     prefixes = []
     suffixes = []
     cores = []
+    move_maps = []  # mapping placeholder->mossa per ogni slot
 
     for el, attr, original in slots_all:
         if not original:
@@ -228,10 +324,18 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
         if not core:
             continue
 
+        # 1) riga quasi tutta mosse? -> non tradurre
+        if looks_like_chess_line(core):
+            continue
+
+        # 2) maschera mosse dentro testo normale
+        core_masked, mv_map = mask_chess_moves_in_text(core)
+
         slots.append((el, attr))
         prefixes.append(pre)
         suffixes.append(suf)
-        cores.append(core)
+        cores.append(core_masked)
+        move_maps.append(mv_map)
 
     if not slots:
         return "OK"
@@ -284,9 +388,11 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
             out_parts.append(await translate_text(c, target_lang=lang))
 
     for i, (el, attr) in enumerate(slots):
-        setattr(el, attr, f"{prefixes[i]}{out_parts[i]}{suffixes[i]}")
+        t = unmask_chess_moves(out_parts[i], move_maps[i])
+        setattr(el, attr, f"{prefixes[i]}{t}{suffixes[i]}")
 
     return "OK"
+
 
 async def translate_full_html_blocks(in_path, out_path, lang, block_xpath, max_payload_chars, throttle_s, progress_cb, stop_event):
     with open(in_path, "r", encoding="utf-8") as f:
@@ -335,7 +441,6 @@ def create_gui():
     root.title("EPUB → HTML + Traduzione (semplice)")
     root.geometry("900x560")
 
-    # stato "semplice"
     state = {
         "epub_path": None,
         "out_dir": os.path.abspath("epub_export"),
@@ -345,7 +450,6 @@ def create_gui():
         "stop_event": threading.Event(),
     }
 
-    # variabili UI
     var_file = tk.StringVar(value="Nessun file selezionato.")
     var_out = tk.StringVar(value=state["out_dir"])
     var_lang = tk.StringVar(value="it")
@@ -354,7 +458,6 @@ def create_gui():
     var_make_full = tk.BooleanVar(value=True)
     var_translate = tk.BooleanVar(value=True)
 
-    # quali blocchi tradurre
     var_p = tk.BooleanVar(value=True)
     var_li = tk.BooleanVar(value=True)
     var_h = tk.BooleanVar(value=True)
@@ -362,13 +465,12 @@ def create_gui():
     var_caption = tk.BooleanVar(value=False)
     var_quote = tk.BooleanVar(value=False)
 
-    var_speed = tk.IntVar(value=3500)     # max_payload_chars (più alto = meno richieste)
-    var_throttle = tk.IntVar(value=20)    # ms di pausa (0..100). piccolo ma non zero.
+    var_speed = tk.IntVar(value=3500)
+    var_throttle = tk.IntVar(value=20)
 
     var_status = tk.StringVar(value="Pronto.")
     var_pct = tk.StringVar(value="0%")
 
-    # --- funzioni helper UI ---
     def log_line(s):
         log.configure(state="normal")
         log.insert("end", s + "\n")
@@ -415,7 +517,6 @@ def create_gui():
             btn_pick.configure(state="normal")
             btn_out.configure(state="normal")
 
-    # callback progress dal worker
     def progress_cb(done, total, msg):
         state["queue"].put(("PROGRESS", done, total, msg))
 
@@ -423,13 +524,12 @@ def create_gui():
         tags = []
         if var_p.get(): tags.append("self::p")
         if var_li.get(): tags.append("self::li")
-        if var_h.get(): tags += ["self::h1","self::h2","self::h3","self::h4","self::h5","self::h6"]
-        if var_table.get(): tags += ["self::td","self::th"]
+        if var_h.get(): tags += ["self::h1", "self::h2", "self::h3", "self::h4", "self::h5", "self::h6"]
+        if var_table.get(): tags += ["self::td", "self::th"]
         if var_caption.get(): tags.append("self::figcaption")
         if var_quote.get(): tags.append("self::blockquote")
 
         if not tags:
-            # se l’utente disattiva tutto, almeno non esplode
             tags = ["self::p"]
 
         return "//body//*[" + " or ".join(tags) + "]"
@@ -445,7 +545,6 @@ def create_gui():
             if state["stop_event"].is_set():
                 raise RuntimeError("Annullato")
 
-            # esporta risorse
             if var_export.get():
                 state["queue"].put(("STATUS", "Esportazione risorse…"))
                 export_epub_folder(book, out_dir=out_dir)
@@ -453,7 +552,6 @@ def create_gui():
             if state["stop_event"].is_set():
                 raise RuntimeError("Annullato")
 
-            # crea full.html
             full_path = os.path.join(out_dir, "full.html")
             if var_make_full.get() or var_translate.get():
                 state["queue"].put(("STATUS", "Creazione full.html…"))
@@ -463,7 +561,6 @@ def create_gui():
             if state["stop_event"].is_set():
                 raise RuntimeError("Annullato")
 
-            # traduci
             if var_translate.get():
                 lang = (var_lang.get() or "it").strip()
                 out_path = os.path.join(out_dir, f"full_{lang}.html")
@@ -471,9 +568,8 @@ def create_gui():
                 max_payload_chars = int(var_speed.get())
                 throttle_s = max(0, int(var_throttle.get())) / 1000.0
 
-                state["queue"].put(("STATUS", f"Traduzione in '{lang}'… (pochi request)"))
+                state["queue"].put(("STATUS", f"Traduzione in '{lang}'… (mosse escluse)"))
 
-                # async in thread
                 out_path = asyncio.run(
                     translate_full_html_blocks(
                         in_path=full_path,
@@ -556,9 +652,7 @@ def create_gui():
 
         root.after(120, poll_queue)
 
-    # =====================================================
-    # Layout GUI
-    # =====================================================
+    # UI
     frm_top = ttk.Frame(root)
     frm_top.pack(fill="x", padx=12, pady=10)
 
@@ -567,25 +661,25 @@ def create_gui():
     btn_pick = ttk.Button(frm_top, text="Seleziona…", command=choose_epub)
     btn_pick.grid(row=0, column=2)
 
-    ttk.Label(frm_top, text="Output:").grid(row=1, column=0, sticky="w", pady=(8,0))
-    ttk.Label(frm_top, textvariable=var_out).grid(row=1, column=1, sticky="we", padx=8, pady=(8,0))
+    ttk.Label(frm_top, text="Output:").grid(row=1, column=0, sticky="w", pady=(8, 0))
+    ttk.Label(frm_top, textvariable=var_out).grid(row=1, column=1, sticky="we", padx=8, pady=(8, 0))
     btn_out = ttk.Button(frm_top, text="Cartella…", command=choose_out_dir)
-    btn_out.grid(row=1, column=2, pady=(8,0))
+    btn_out.grid(row=1, column=2, pady=(8, 0))
 
     frm_top.columnconfigure(1, weight=1)
 
     frm_opts = ttk.LabelFrame(root, text="Cosa fare")
-    frm_opts.pack(fill="x", padx=12, pady=(0,10))
+    frm_opts.pack(fill="x", padx=12, pady=(0, 10))
 
     ttk.Checkbutton(frm_opts, text="Esporta risorse (immagini/css)", variable=var_export).grid(row=0, column=0, sticky="w", padx=8, pady=4)
     ttk.Checkbutton(frm_opts, text="Crea full.html", variable=var_make_full).grid(row=0, column=1, sticky="w", padx=8, pady=4)
     ttk.Checkbutton(frm_opts, text="Traduci", variable=var_translate).grid(row=0, column=2, sticky="w", padx=8, pady=4)
 
-    ttk.Label(frm_opts, text="Lingua (es: it, en, fr):").grid(row=1, column=0, sticky="w", padx=8, pady=(6,4))
-    ttk.Entry(frm_opts, textvariable=var_lang, width=8).grid(row=1, column=1, sticky="w", padx=8, pady=(6,4))
+    ttk.Label(frm_opts, text="Lingua (es: it, en, fr):").grid(row=1, column=0, sticky="w", padx=8, pady=(6, 4))
+    ttk.Entry(frm_opts, textvariable=var_lang, width=8).grid(row=1, column=1, sticky="w", padx=8, pady=(6, 4))
 
     frm_blocks = ttk.LabelFrame(root, text="Blocchi da tradurre (meno blocchi = più veloce)")
-    frm_blocks.pack(fill="x", padx=12, pady=(0,10))
+    frm_blocks.pack(fill="x", padx=12, pady=(0, 10))
 
     ttk.Checkbutton(frm_blocks, text="<p> paragrafi", variable=var_p).grid(row=0, column=0, sticky="w", padx=8, pady=4)
     ttk.Checkbutton(frm_blocks, text="<li> elenchi", variable=var_li).grid(row=0, column=1, sticky="w", padx=8, pady=4)
@@ -595,7 +689,7 @@ def create_gui():
     ttk.Checkbutton(frm_blocks, text="Blockquote", variable=var_quote).grid(row=1, column=1, sticky="w", padx=8, pady=4)
 
     frm_speed = ttk.LabelFrame(root, text="Velocità / stabilità")
-    frm_speed.pack(fill="x", padx=12, pady=(0,10))
+    frm_speed.pack(fill="x", padx=12, pady=(0, 10))
 
     ttk.Label(frm_speed, text="Max payload (caratteri per richiesta):").grid(row=0, column=0, sticky="w", padx=8, pady=4)
     ttk.Scale(frm_speed, from_=1200, to=6500, orient="horizontal", variable=var_speed).grid(row=0, column=1, sticky="we", padx=8, pady=4)
@@ -608,29 +702,28 @@ def create_gui():
     frm_speed.columnconfigure(1, weight=1)
 
     frm_run = ttk.Frame(root)
-    frm_run.pack(fill="x", padx=12, pady=(0,8))
+    frm_run.pack(fill="x", padx=12, pady=(0, 8))
 
     btn_start = ttk.Button(frm_run, text="Avvia", command=start, state="disabled")
     btn_start.pack(side="left")
 
     btn_cancel = ttk.Button(frm_run, text="Annulla", command=cancel, state="disabled")
-    btn_cancel.pack(side="left", padx=(8,0))
+    btn_cancel.pack(side="left", padx=(8, 0))
 
     btn_open = ttk.Button(frm_run, text="Apri cartella output", command=open_output_folder)
-    btn_open.pack(side="left", padx=(8,0))
+    btn_open.pack(side="left", padx=(8, 0))
 
-    ttk.Label(frm_run, textvariable=var_status).pack(side="left", padx=(16,0))
+    ttk.Label(frm_run, textvariable=var_status).pack(side="left", padx=(16, 0))
     ttk.Label(frm_run, textvariable=var_pct).pack(side="right")
 
     bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", maximum=100)
-    bar.pack(fill="x", padx=12, pady=(0,10))
+    bar.pack(fill="x", padx=12, pady=(0, 10))
 
     ttk.Label(root, text="Log:").pack(anchor="w", padx=12)
     log = ScrolledText(root, height=10)
-    log.pack(fill="both", expand=True, padx=12, pady=(0,12))
+    log.pack(fill="both", expand=True, padx=12, pady=(0, 12))
     log.configure(state="disabled")
 
-    # avvia polling
     root.after(120, poll_queue)
     root.mainloop()
 
