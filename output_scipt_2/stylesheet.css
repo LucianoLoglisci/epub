@@ -1,0 +1,1489 @@
+._idgenbnmarker {
+  display: inline-block;
+  font-family: "Myriad Pro", sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  text-indent: 0;
+  width: 14px;
+}
+._idgenbnmarker1 {
+  display: inline-block;
+  text-indent: 0;
+  width: 14px;
+}
+._idgenobjectlayout {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+._idgenpageitem {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: inline-block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+._idgenpageitem1 {
+  height: auto;
+  width: 100%;
+}
+._idgenpageitem2 {
+  height: auto;
+  width: 14%;
+}
+._idgenpageitem3 {
+  height: auto;
+  width: 21%;
+}
+.answer {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.77778em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: uppercase;
+  widows: 1;
+  margin: 56px 28px 3px;
+  padding: 0;
+}
+.article {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: left;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 14px 14px 0;
+  padding: 0;
+}
+.article1 {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: left;
+  text-decoration: underline;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 14px 14px 7px 17px;
+  padding: 0;
+}
+.article2 {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: left;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 7px 14px 3px 0;
+  padding: 0;
+}
+.basic-text-frame {
+  border-bottom-style: solid;
+  border-bottom-width: 0;
+  border-left-style: solid;
+  border-left-width: 0;
+  border-right-style: solid;
+  border-right-width: 0;
+  border-top-style: solid;
+  border-top-width: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.bibliography-list {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.77778em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: left;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 42px 3px 28px;
+  padding: 0;
+}
+.body_content-l4---parts {
+  -epub-hyphens: none;
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 58px;
+  padding: 0;
+}
+.bold {
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-style: normal;
+  font-weight: bold;
+}
+.bold-italic {
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-style: italic;
+  font-weight: bold;
+}
+.bold-underlined {
+  font-family: Times;
+  font-style: normal;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.calibre {
+  -epub-hyphens: auto;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: times, serif;
+  font-size: 1.125em;
+  line-height: 1.2;
+  margin: 0 5pt;
+  padding: 0;
+}
+.calibre1 {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.calibre2 {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.calibre3 {
+  display: block;
+}
+.caption {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 14px 35px 28px;
+  padding: 0;
+}
+.caption1 {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 28px;
+  margin-top: 14px;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  padding: 0;
+}
+.caption2 {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 35px 3px;
+  padding: 0;
+}
+.caption3 {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 35px 28px;
+  padding: 0;
+}
+.caption4 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 35px 28px;
+  padding: 0;
+}
+.caption5 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 14px 35px 28px;
+  padding: 0;
+}
+.caption6 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 35px;
+  padding: 0;
+}
+.caption7 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro", serif;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 35px 28px;
+  padding: 0;
+}
+.chapter {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.33333em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0;
+  padding: 0;
+}
+.chapter-alt {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.33333em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 87px;
+  padding: 0;
+}
+.chapter-alt-3-anywhere {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.33333em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 35px 0 0;
+  padding: 0;
+}
+.chapter-descripton {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.22222em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 70px;
+  padding: 0;
+}
+.chapter-quote {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 35px;
+  padding: 0;
+}
+.content-l1-parts {
+  -epub-hyphens: none;
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px;
+  padding: 0;
+}
+.content-l2-parts {
+  -epub-hyphens: none;
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 38px;
+  padding: 0;
+}
+.content-l3-parts {
+  -epub-hyphens: none;
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 48px;
+  padding: 0;
+}
+.content-title-parts {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: underline;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.diagram-number {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  margin-bottom: 14px;
+  margin-top: 0;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  padding: 0;
+}
+.diagram-number-ns {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0;
+  padding: 0;
+}
+.diagram-number-sb {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  margin-bottom: 14px;
+  margin-top: 28px;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  padding: 0;
+}
+.diagram-os {
+  border-bottom-style: solid;
+  border-bottom-width: 0;
+  border-left-style: solid;
+  border-left-width: 0;
+  border-right-style: solid;
+  border-right-width: 0;
+  border-top-style: solid;
+  border-top-width: 0;
+  display: inline-block;
+  width: 52%;
+  margin: 0;
+  padding: 0;
+}
+.diagram-os1 {
+  border-bottom-style: solid;
+  border-bottom-width: 0;
+  border-left-style: solid;
+  border-left-width: 0;
+  border-right-style: solid;
+  border-right-width: 0;
+  border-top-style: solid;
+  border-top-width: 0;
+  display: inline-block;
+  width: 49%;
+  margin: 0;
+  padding: 0;
+}
+.diagram-os2 {
+  border-bottom-style: solid;
+  border-bottom-width: 0;
+  border-left-style: solid;
+  border-left-width: 0;
+  border-right-style: solid;
+  border-right-width: 0;
+  border-top-style: solid;
+  border-top-width: 0;
+  display: inline-block;
+  width: 35%;
+  margin: 0;
+  padding: 0;
+}
+.firstline-indent-basic-text {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 0;
+  padding: 0;
+}
+.firstline-indent-basic-text-sa {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 7px;
+  padding: 0;
+}
+.firstline-indent-basic-text-sa1 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 28px;
+  padding: 0;
+}
+.firstline-indent-basic-text-sb {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 0 7px;
+  padding: 0;
+}
+.firstline-indent-basic-text-sb1 {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 17px;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 0 0;
+  padding: 0;
+}
+.float-text {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.77778em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 100px 20px;
+  padding: 0;
+}
+.float-title {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Std Black", serif;
+  font-size: 0.66667em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 900;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: underline;
+  text-indent: 0;
+  text-transform: uppercase;
+  widows: 1;
+  margin: 20px 14px 0;
+  padding: 0;
+}
+.frontmatter-title {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.33333em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 70px;
+  padding: 0;
+}
+.hanging-indent {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -34px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 34px 3px 51px;
+  padding: 0;
+}
+.hanging-indent-last-line {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -34px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 34px 7px 51px;
+  padding: 0;
+}
+.hyperlink {
+  color: #4f5cd6;
+  text-decoration: underline;
+}
+.indent-left-p {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 7px 17px 7px 35px;
+  padding: 0;
+}
+.italic {
+  font-family: "Adobe Caslon Pro", serif;
+  font-style: italic;
+  font-weight: normal;
+}
+.list {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 42px;
+  padding: 0;
+}
+.list-1-l {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  list-style-type: disc;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 70px;
+  padding: 0;
+}
+.list-1-l2-lastline {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  list-style-type: disc;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 7px 70px;
+  padding: 0;
+}
+.list-1-last {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 7px 42px;
+  padding: 0;
+}
+.list-1-lastline-style {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  list-style-type: disc;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 7px 42px;
+  padding: 0;
+}
+.list-1-sa {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 14px 3px 42px;
+  padding: 0;
+}
+.list-1-style {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  list-style-type: disc;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 42px;
+  padding: 0;
+}
+.list-numbers {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 0 14px 3px 42px;
+  padding: 0;
+}
+.list1-l2-sb {
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  list-style-position: outside;
+  list-style-type: disc;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: -14px;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 14px 3px 70px;
+  padding: 0;
+}
+.nobreak {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  page-break-inside: avoid;
+  margin: 0;
+  padding: 0;
+}
+.other-titles {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0 0 35px;
+  padding: 0;
+}
+.para-title {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 28px 14px 14px;
+  padding: 0;
+}
+.paragraph-title {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Adobe Caslon Pro Bold", serif;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 14px 14px 7px;
+  padding: 0;
+}
+.part {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 1.33333em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: uppercase;
+  widows: 1;
+  margin: 0 0 70px;
+  padding: 0;
+}
+.part-contents {
+  -epub-hyphens: none;
+  -epub-text-align-last: left;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 900;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: justify;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 7px 14px 3px 0;
+  padding: 0;
+}
+.right-align-basic-text {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.88889em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: right;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 0;
+  padding: 0;
+}
+.sub-chapter {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.11111em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: underline;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 42px 14px 28px;
+  padding: 0;
+}
+.sub-chapter-l {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: underline;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 42px 0 28px;
+  padding: 0;
+}
+.sub-chapter1 {
+  -epub-hyphens: none;
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-family: "Minion Pro", serif;
+  font-size: 1.11111em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: none;
+  widows: 1;
+  margin: 42px 14px 28px;
+  padding: 0;
+}
+.test {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+  display: block;
+  font-size: 0.77778em;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1.2;
+  orphans: 1;
+  page-break-after: auto;
+  page-break-before: auto;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-transform: uppercase;
+  widows: 1;
+  margin: 14px 28px 3px;
+  padding: 0;
+}
+.underlined {
+  text-decoration: underline;
+}
