@@ -5,6 +5,7 @@ import threading
 import queue
 import asyncio
 import inspect
+import zipfile
 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -12,8 +13,9 @@ from tkinter.scrolledtext import ScrolledText
 
 import ebooklib
 from ebooklib import epub
-from lxml import html
+from lxml import html as lxml_html
 import posixpath
+import html as pyhtml  # FIX: html.escape corretto (non lxml.html)
 
 import httpx
 from googletrans import Translator
@@ -62,30 +64,103 @@ async def translate_text(text, target_lang="it", retries=4, base_delay=0.8):
 
 
 # =========================================================
-# EPUB: export risorse + crea full.html (NO traduzione)
-#   FIX:
-#   - prende CSS anche con namespace (local-name())
-#   - prende BODY anche con namespace (local-name())
-#   - sistema anche xlink:href / {namespace}href (SVG images)
+# EPUB: export risorse (ESTRAZIONE ZIP = prende TUTTO)
+#  Motivo: alcuni EPUB referenziano asset non dichiarati nel manifest OPF.
+#  ebooklib.get_items() NON li vede -> mancavano font/immagini -> ERR_FILE_NOT_FOUND.
 # =========================================================
-def export_epub_folder(book, out_dir="epub_export"):
+def export_epub_folder_from_zip(epub_path: str, out_dir="epub_export"):
     os.makedirs(out_dir, exist_ok=True)
-    for item in book.get_items():
-        name = item.get_name()
-        path = os.path.join(out_dir, *name.split("/"))
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "wb") as f:
-            f.write(item.get_content())
+    try:
+        with zipfile.ZipFile(epub_path, "r") as z:
+            z.extractall(out_dir)
+    except zipfile.BadZipFile as e:
+        raise RuntimeError(f"EPUB non valido/ZIP corrotto: {e}")
     return out_dir
 
 
-def is_relative(url):
-    if not url:
-        return False
-    u = url.strip().lower()
-    return not (u.startswith(("http://", "https://", "mailto:", "tel:", "data:", "#", "/")))
+# =========================================================
+# FIX CSS: riscrive url(...) e @import (gestisce anche "/...") + ripulisce ?#...
+# =========================================================
+_URL_RE = re.compile(r'url\(\s*(?P<q>["\']?)(?P<u>[^"\'\)]+)(?P=q)\s*\)', re.I)
+_IMPORT_RE = re.compile(r'@import\s+(?:url\(\s*)?(?P<q>["\']?)(?P<u>[^"\'\)]+)(?P=q)\s*\)?', re.I)
 
 
+def _clean_ref(u: str) -> str:
+    u = (u or "").strip().replace("\\", "/")
+    u = u.split("#", 1)[0].split("?", 1)[0]
+    return u
+
+
+def _is_external(u: str) -> bool:
+    if not u:
+        return True
+    lu = u.lower()
+    return lu.startswith(("http://", "https://", "data:", "mailto:", "tel:", "#"))
+
+
+def fix_css_file(css_abs_path: str, css_rel_path_posix: str):
+    """
+    css_rel_path_posix: path POSIX relativo a out_dir, es: "styles/stylesheet.css"
+    """
+    css_dir = posixpath.dirname(css_rel_path_posix)  # es: "styles" oppure ""
+
+    raw = open(css_abs_path, "rb").read()
+    try:
+        txt = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        txt = raw.decode("utf-8", "ignore")
+
+    def repl_url(m):
+        q = m.group("q") or ""
+        u = m.group("u")
+        if _is_external(u):
+            return m.group(0)
+
+        u2 = _clean_ref(u)
+
+        # root EPUB: "/fonts/x.ttf" -> relativo alla cartella del CSS
+        if u2.startswith("/"):
+            target = u2.lstrip("/")
+            newu = posixpath.relpath(target, css_dir or ".")
+            return f"url({q}{newu}{q})"
+
+        return f"url({q}{u2}{q})"
+
+    def repl_import(m):
+        q = m.group("q") or ""
+        u = m.group("u")
+        if _is_external(u):
+            return m.group(0)
+
+        u2 = _clean_ref(u)
+
+        if u2.startswith("/"):
+            target = u2.lstrip("/")
+            newu = posixpath.relpath(target, css_dir or ".")
+            return f"@import {q}{newu}{q}"
+
+        return f"@import {q}{u2}{q}"
+
+    new_txt = _URL_RE.sub(repl_url, txt)
+    new_txt = _IMPORT_RE.sub(repl_import, new_txt)
+
+    if new_txt != txt:
+        with open(css_abs_path, "w", encoding="utf-8") as f:
+            f.write(new_txt)
+
+
+def fix_all_css_under(out_dir: str):
+    for root, _, files in os.walk(out_dir):
+        for fn in files:
+            if fn.lower().endswith(".css"):
+                abs_path = os.path.join(root, fn)
+                rel_path = os.path.relpath(abs_path, out_dir).replace(os.sep, "/")
+                fix_css_file(abs_path, rel_path)
+
+
+# =========================================================
+# EPUB: crea full.html (NO traduzione)
+# =========================================================
 def make_full_html(book, out_dir="epub_export", out_name="full.html"):
     os.makedirs(out_dir, exist_ok=True)
 
@@ -95,69 +170,136 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
     inline_styles = []
     body_parts = []
 
+    html_attrs = {}
+    html_class_order = []
+    body_attrs = {}
+    body_class_order = []
+
+    def add_class(order_list, cls_string):
+        if not cls_string:
+            return
+        for c in cls_string.split():
+            if c not in order_list:
+                order_list.append(c)
+
+    def is_relative(url):
+        if not url:
+            return False
+        u = url.strip().lower()
+        return not (u.startswith(("http://", "https://", "mailto:", "tel:", "data:", "#")) or u.startswith("/"))
+
+    def normalize_ref(v, base_dir):
+        if not v:
+            return v
+        v = v.strip()
+        if not v:
+            return v
+        lv = v.lower()
+        if lv.startswith(("http://", "https://", "mailto:", "tel:", "data:", "#")):
+            return v
+        if v.startswith("/"):
+            return v.lstrip("/")
+        if is_relative(v):
+            return posixpath.normpath(posixpath.join(base_dir, v))
+        return v
+
     def fix_all_urls(doc, base_dir):
-        # sistema src/href e anche xlink:href dentro svg
         for el in doc.iter():
-            # src
             if "src" in el.attrib:
-                v = el.attrib.get("src")
-                if v and is_relative(v):
-                    el.attrib["src"] = posixpath.normpath(posixpath.join(base_dir, v))
+                nv = normalize_ref(el.attrib.get("src"), base_dir)
+                if nv:
+                    el.attrib["src"] = nv
 
-            # href
             if "href" in el.attrib:
-                v = el.attrib.get("href")
-                if v and is_relative(v):
-                    el.attrib["href"] = posixpath.normpath(posixpath.join(base_dir, v))
+                nv = normalize_ref(el.attrib.get("href"), base_dir)
+                if nv:
+                    el.attrib["href"] = nv
 
-            # xlink:href o {namespace}href
             for k in list(el.attrib.keys()):
                 if k == "xlink:href" or k.endswith("}href"):
-                    v = el.attrib.get(k)
-                    if v and is_relative(v):
-                        el.attrib[k] = posixpath.normpath(posixpath.join(base_dir, v))
+                    nv = normalize_ref(el.attrib.get(k), base_dir)
+                    if nv:
+                        el.attrib[k] = nv
 
+    def add_css_link(href, base_dir=""):
+        if not href:
+            return
+        h = href.strip()
+        if not h:
+            return
+        if h.startswith("/"):
+            h = h.lstrip("/")
+        elif is_relative(h) and base_dir:
+            h = posixpath.normpath(posixpath.join(base_dir, h))
+        css_links.append(h)
+
+    # 1) CSS dal manifest (sempre)
+    for css_item in book.get_items_of_type(ebooklib.ITEM_STYLE):
+        name = css_item.get_name()
+        if name:
+            css_links.append(name)
+
+    # 2) Unisci capitoli
     for idref in spine_ids:
         item = book.get_item_with_id(idref)
         if not item or item.get_type() != ebooklib.ITEM_DOCUMENT:
             continue
 
-        chapter_path = item.get_name()
+        chapter_path = item.get_name() or ""
         base_dir = posixpath.dirname(chapter_path)
 
-        doc = html.fromstring(item.get_content())
+        doc = lxml_html.fromstring(item.get_content())
 
-        # CSS esterni (robusto con namespace + rel case-insensitive)
+        # preserva <html>
+        html_nodes = doc.xpath("//*[local-name()='html']")
+        if html_nodes:
+            hnode = html_nodes[0]
+            add_class(html_class_order, hnode.get("class"))
+            if not html_attrs:
+                for k in ("lang", "dir", "xml:lang"):
+                    v = hnode.get(k)
+                    if v:
+                        html_attrs[k] = v
+
+        # link stylesheet nel capitolo
         for link in doc.xpath(
             "//*[local-name()='link' and translate(@rel,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='stylesheet']"
         ):
-            href = link.get("href")
-            if href and is_relative(href):
-                href = posixpath.normpath(posixpath.join(base_dir, href))
-            if href:
-                css_links.append(href)
+            add_css_link(link.get("href"), base_dir=base_dir)
 
-        # CSS inline (robusto con namespace)
+        # style inline
         for style in doc.xpath("//*[local-name()='style']"):
             css = (style.text or "").strip()
             if css:
                 inline_styles.append(css)
 
-        # Fix risorse (src/href/xlink:href)
+        # fix URL risorse
         fix_all_urls(doc, base_dir)
 
-        # body robusto con namespace
         bodies = doc.xpath("//*[local-name()='body']")
         if bodies:
             body = bodies[0]
-            inner = "\n".join(html.tostring(child, encoding="unicode") for child in body)
-            body_parts.append(inner)
+
+            add_class(body_class_order, body.get("class"))
+
+            if not body_attrs:
+                for k in ("style", "dir", "lang", "id"):
+                    v = body.get(k)
+                    if v:
+                        body_attrs[k] = v
+
+            parts = []
+            if body.text and body.text.strip():
+                parts.append(pyhtml.escape(body.text))
+
+            parts.append("".join(lxml_html.tostring(child, encoding="unicode") for child in body))
+            body_parts.append("\n".join(parts))
 
     # dedup CSS
     seen = set()
     css_links_unique = []
     for c in css_links:
-        if c not in seen:
+        if c and c not in seen:
             seen.add(c)
             css_links_unique.append(c)
 
@@ -167,15 +309,32 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
     if inline_styles:
         head_inline = "<style>\n" + "\n\n".join(inline_styles) + "\n</style>"
 
+    if html_class_order:
+        html_attrs["class"] = " ".join(html_class_order)
+    if body_class_order:
+        body_attrs["class"] = " ".join(body_class_order)
+
+    html_attr_str = ""
+    if html_attrs:
+        html_attr_str = " " + " ".join(f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in html_attrs.items())
+
+    body_attr_str = ""
+    if body_attrs:
+        body_attr_str = " " + " ".join(f'{k}="{="{pyhtml.escape(v, quote=True)}"' for k, v in body_attrs.items()).replace('R="{', 'R="')  # safety
+
+    # ^^^ Nota: la riga sopra evita un raro problema se qualcuno usa chiavi strane.
+    # Se preferisci "pulito", puoi sostituirla con:
+    # body_attr_str = " " + " ".join(f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in body_attrs.items())
+
     full = f"""<!doctype html>
-<html>
+<html{html_attr_str}>
 <head>
 <meta charset="utf-8">
 <title>EPUB(unito)</title>
 {head_css}
 {head_inline}
 </head>
-<body>
+<body{body_attr_str}>
 {"<hr>".join(body_parts)}
 </body>
 </html>"""
@@ -224,10 +383,6 @@ def looks_like_chess_line(text):
 
 
 def mask_chess_moves_in_text(text):
-    """
-    Sostituisce le mosse con placeholder, così la traduzione non le tocca.
-    Ritorna: (masked_text, mapping)
-    """
     mapping = {}
     i = 0
 
@@ -245,15 +400,16 @@ def mask_chess_moves_in_text(text):
 def unmask_chess_moves(text, mapping):
     out = text
     for k, v in mapping.items():
-        out = re.sub(rf"\s*{re.escape(k)}\s*", v, out)
+        out = re.sub(
+            rf"(\s*){re.escape(k)}(\s*)",
+            lambda m: f"{m.group(1)}{v}{m.group(2)}",
+            out
+        )
     return out
 
 
 # =========================================================
-# TRADUZIONE VELOCE (meno richieste) + TAG INTACTI
-#  - 1 richiesta per "blocco" (p, li, h1..h6, td, ecc.)
-#  - dentro il blocco traduce tanti pezzetti insieme con un delimitatore
-#  - SALTA o MASCHERA le mosse di scacchi
+# TRADUZIONE VELOCE + TAG INTACTI
 # =========================================================
 SKIP_TAGS = {"script", "style", "head", "title", "meta", "link", "code", "pre", "kbd", "samp"}
 LETTER_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
@@ -272,9 +428,6 @@ def split_ws(s):
 
 
 def collect_text_slots_in_block(block_el):
-    """
-    Prende text/tail in ordine di rendering, ma non tocca i tag.
-    """
     slots = []
 
     def rec(node):
@@ -298,11 +451,6 @@ def collect_text_slots_in_block(block_el):
 
 
 async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars, stop_event):
-    """
-    Traduce SOLO il testo del blocco, senza rimuovere tag/attributi.
-    - se un pezzo è "solo mosse" -> lo salta (non traduce)
-    - se contiene mosse dentro prosa -> le maschera e poi ripristina
-    """
     if stop_event.is_set():
         return "CANCEL"
 
@@ -312,7 +460,7 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
     prefixes = []
     suffixes = []
     cores = []
-    move_maps = []  # mapping placeholder->mossa per ogni slot
+    move_maps = []
 
     for el, attr, original in slots_all:
         if not original:
@@ -324,11 +472,9 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
         if not core:
             continue
 
-        # 1) riga quasi tutta mosse? -> non tradurre
         if looks_like_chess_line(core):
             continue
 
-        # 2) maschera mosse dentro testo normale
         core_masked, mv_map = mask_chess_moves_in_text(core)
 
         slots.append((el, attr))
@@ -342,7 +488,6 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
 
     delim = f"␞{uuid.uuid4().hex}␞"
 
-    # chunking per non mandare payload enormi (più stabile)
     chunks = []
     current = []
     current_len = 0
@@ -369,7 +514,6 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
 
         parts = re.split(rf"\s*{re.escape(delim)}\s*", translated)
 
-        # se lo split non torna, fallback (solo per questo chunk)
         if len(parts) != len(chunk):
             parts = []
             for c in chunk:
@@ -379,7 +523,6 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
 
         out_parts.extend(parts)
 
-    # fallback estremo
     if len(out_parts) != len(slots):
         out_parts = []
         for c in cores:
@@ -394,11 +537,12 @@ async def translate_one_block_preserve_markup(block_el, lang, max_payload_chars,
     return "OK"
 
 
-async def translate_full_html_blocks(in_path, out_path, lang, block_xpath, max_payload_chars, throttle_s, progress_cb, stop_event):
+async def translate_full_html_blocks(in_path, out_path, lang, block_xpath,
+                                    max_payload_chars, throttle_s, progress_cb, stop_event):
     with open(in_path, "r", encoding="utf-8") as f:
         src = f.read()
 
-    doc = html.fromstring(src)
+    doc = lxml_html.fromstring(src)
     blocks = doc.xpath(block_xpath)
 
     total = len(blocks)
@@ -426,7 +570,7 @@ async def translate_full_html_blocks(in_path, out_path, lang, block_xpath, max_p
         if throttle_s > 0:
             await asyncio.sleep(throttle_s)
 
-    out_html = "<!doctype html>\n" + html.tostring(doc, encoding="unicode", method="html")
+    out_html = "<!doctype html>\n" + lxml_html.tostring(doc, encoding="unicode", method="html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(out_html)
 
@@ -434,7 +578,7 @@ async def translate_full_html_blocks(in_path, out_path, lang, block_xpath, max_p
 
 
 # =========================================================
-# GUI (solo funzioni)
+# GUI
 # =========================================================
 def create_gui():
     root = tk.Tk()
@@ -524,7 +668,8 @@ def create_gui():
         tags = []
         if var_p.get(): tags.append("self::p")
         if var_li.get(): tags.append("self::li")
-        if var_h.get(): tags += ["self::h1", "self::h2", "self::h3", "self::h4", "self::h5", "self::h6"]
+        if var_h.get():
+            tags += ["self::h1", "self::h2", "self::h3", "self::h4", "self::h5", "self::h6"]
         if var_table.get(): tags += ["self::td", "self::th"]
         if var_caption.get(): tags.append("self::figcaption")
         if var_quote.get(): tags.append("self::blockquote")
@@ -545,9 +690,18 @@ def create_gui():
             if state["stop_event"].is_set():
                 raise RuntimeError("Annullato")
 
-            if var_export.get():
-                state["queue"].put(("STATUS", "Esportazione risorse…"))
-                export_epub_folder(book, out_dir=out_dir)
+            # Se vuoi full.html o traduzione, servono asset (font/immagini/css): estraiamo comunque
+            must_have_assets = bool(var_make_full.get() or var_translate.get())
+            do_export = bool(var_export.get() or must_have_assets)
+
+            if not var_export.get() and must_have_assets:
+                state["queue"].put(("LOG", "Nota: per applicare CSS/font è necessaria l'estrazione asset. Procedo comunque."))
+
+            if do_export:
+                state["queue"].put(("STATUS", "Estrazione EPUB (ZIP) + fix CSS…"))
+                export_epub_folder_from_zip(state["epub_path"], out_dir=out_dir)
+                fix_all_css_under(out_dir)
+                state["queue"].put(("LOG", "Estrazione completata + CSS sistemati (url/@import)."))
 
             if state["stop_event"].is_set():
                 raise RuntimeError("Annullato")
@@ -671,33 +825,50 @@ def create_gui():
     frm_opts = ttk.LabelFrame(root, text="Cosa fare")
     frm_opts.pack(fill="x", padx=12, pady=(0, 10))
 
-    ttk.Checkbutton(frm_opts, text="Esporta risorse (immagini/css)", variable=var_export).grid(row=0, column=0, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_opts, text="Crea full.html", variable=var_make_full).grid(row=0, column=1, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_opts, text="Traduci", variable=var_translate).grid(row=0, column=2, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_opts, text="Estrai risorse (immagini/css/font)", variable=var_export)\
+        .grid(row=0, column=0, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_opts, text="Crea full.html", variable=var_make_full)\
+        .grid(row=0, column=1, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_opts, text="Traduci", variable=var_translate)\
+        .grid(row=0, column=2, sticky="w", padx=8, pady=4)
 
-    ttk.Label(frm_opts, text="Lingua (es: it, en, fr):").grid(row=1, column=0, sticky="w", padx=8, pady=(6, 4))
-    ttk.Entry(frm_opts, textvariable=var_lang, width=8).grid(row=1, column=1, sticky="w", padx=8, pady=(6, 4))
+    ttk.Label(frm_opts, text="Lingua (es: it, en, fr):")\
+        .grid(row=1, column=0, sticky="w", padx=8, pady=(6, 4))
+    ttk.Entry(frm_opts, textvariable=var_lang, width=8)\
+        .grid(row=1, column=1, sticky="w", padx=8, pady=(6, 4))
 
     frm_blocks = ttk.LabelFrame(root, text="Blocchi da tradurre (meno blocchi = più veloce)")
     frm_blocks.pack(fill="x", padx=12, pady=(0, 10))
 
-    ttk.Checkbutton(frm_blocks, text="<p> paragrafi", variable=var_p).grid(row=0, column=0, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_blocks, text="<li> elenchi", variable=var_li).grid(row=0, column=1, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_blocks, text="Titoli (h1..h6)", variable=var_h).grid(row=0, column=2, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_blocks, text="Tabelle (td/th)", variable=var_table).grid(row=0, column=3, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_blocks, text="Figcaption", variable=var_caption).grid(row=1, column=0, sticky="w", padx=8, pady=4)
-    ttk.Checkbutton(frm_blocks, text="Blockquote", variable=var_quote).grid(row=1, column=1, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="<p> paragrafi", variable=var_p)\
+        .grid(row=0, column=0, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="<li> elenchi", variable=var_li)\
+        .grid(row=0, column=1, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="Titoli (h1..h6)", variable=var_h)\
+        .grid(row=0, column=2, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="Tabelle (td/th)", variable=var_table)\
+        .grid(row=0, column=3, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="Figcaption", variable=var_caption)\
+        .grid(row=1, column=0, sticky="w", padx=8, pady=4)
+    ttk.Checkbutton(frm_blocks, text="Blockquote", variable=var_quote)\
+        .grid(row=1, column=1, sticky="w", padx=8, pady=4)
 
     frm_speed = ttk.LabelFrame(root, text="Velocità / stabilità")
     frm_speed.pack(fill="x", padx=12, pady=(0, 10))
 
-    ttk.Label(frm_speed, text="Max payload (caratteri per richiesta):").grid(row=0, column=0, sticky="w", padx=8, pady=4)
-    ttk.Scale(frm_speed, from_=1200, to=6500, orient="horizontal", variable=var_speed).grid(row=0, column=1, sticky="we", padx=8, pady=4)
-    ttk.Label(frm_speed, textvariable=var_speed, width=6).grid(row=0, column=2, sticky="w", padx=8, pady=4)
+    ttk.Label(frm_speed, text="Max payload (caratteri per richiesta):")\
+        .grid(row=0, column=0, sticky="w", padx=8, pady=4)
+    ttk.Scale(frm_speed, from_=1200, to=6500, orient="horizontal", variable=var_speed)\
+        .grid(row=0, column=1, sticky="we", padx=8, pady=4)
+    ttk.Label(frm_speed, textvariable=var_speed, width=6)\
+        .grid(row=0, column=2, sticky="w", padx=8, pady=4)
 
-    ttk.Label(frm_speed, text="Pausa tra richieste (ms):").grid(row=1, column=0, sticky="w", padx=8, pady=4)
-    ttk.Scale(frm_speed, from_=0, to=120, orient="horizontal", variable=var_throttle).grid(row=1, column=1, sticky="we", padx=8, pady=4)
-    ttk.Label(frm_speed, textvariable=var_throttle, width=6).grid(row=1, column=2, sticky="w", padx=8, pady=4)
+    ttk.Label(frm_speed, text="Pausa tra richieste (ms):")\
+        .grid(row=1, column=0, sticky="w", padx=8, pady=4)
+    ttk.Scale(frm_speed, from_=0, to=120, orient="horizontal", variable=var_throttle)\
+        .grid(row=1, column=1, sticky="we", padx=8, pady=4)
+    ttk.Label(frm_speed, textvariable=var_throttle, width=6)\
+        .grid(row=1, column=2, sticky="w", padx=8, pady=4)
 
     frm_speed.columnconfigure(1, weight=1)
 
