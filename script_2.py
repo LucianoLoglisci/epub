@@ -316,18 +316,16 @@ def make_full_html(book, out_dir="epub_export", out_name="full.html"):
 
     html_attr_str = ""
     if html_attrs:
-        html_attr_str = " " + " ".join(f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in html_attrs.items())
+        html_attr_str = " " + " ".join(
+            f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in html_attrs.items()
+        )
+
 
     body_attr_str = ""
     if body_attrs:
         body_attr_str = " " + " ".join(
             f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in body_attrs.items()
         )
-
-
-    # ^^^ Nota: la riga sopra evita un raro problema se qualcuno usa chiavi strane.
-    # Se preferisci "pulito", puoi sostituirla con:
-    # body_attr_str = " " + " ".join(f'{k}="{pyhtml.escape(v, quote=True)}"' for k, v in body_attrs.items())
 
     full = f"""<!doctype html>
 <html{html_attr_str}>
